@@ -9,9 +9,11 @@ public class MainFrame extends JFrame {
     private final JPanel innerPanelContainer;
     private final SquareLayout squareLayout;
     private ActionListener spinHandler;
+    private ActionListener stopHandler;
     private ActionListener resetHandler;
     private ActionListener closeHandler;
     private JButton spinButton;
+    private boolean isSpinning = false;  // Flag to track the state of the spin button
 
     public MainFrame(String title, int width, int height) {
         super(title);
@@ -31,9 +33,7 @@ public class MainFrame extends JFrame {
 
         // Create the Spin button and its action listener
         this.spinButton = new JButton("Spin");
-        spinButton.addActionListener(e -> {
-            spinReels(e);
-        });
+        spinButton.addActionListener(this::toggleSpinStop);
         buttonPanel.add(spinButton);
 
         // Create the Reset button and its action listener
@@ -62,11 +62,29 @@ public class MainFrame extends JFrame {
         innerPanelContainer.repaint();
     }
 
+    // Method to toggle between Spin and Stop
+    private void toggleSpinStop(ActionEvent e) {
+        if (isSpinning) {
+            stopReels(e);  // Stop the spinning
+            spinButton.setText("Spin");  // Change button text back to "Spin"
+        } else {
+            spinReels(e);  // Start spinning
+            spinButton.setText("Stop");  // Change button text to "Stop"
+        }
+        isSpinning = !isSpinning;  // Toggle the state
+    }
+
     // Method to handle the Spin button action
     private void spinReels(ActionEvent e) {
         if (spinHandler != null) {
-            spinButton.setEnabled(false); // Disable the spin button
             spinHandler.actionPerformed(e);
+        }
+    }
+
+    // Method to handle the Stop button action
+    private void stopReels(ActionEvent e) {
+        if (stopHandler != null) {
+            stopHandler.actionPerformed(e);
         }
     }
 
@@ -75,6 +93,7 @@ public class MainFrame extends JFrame {
         if (resetHandler != null) {
             resetHandler.actionPerformed(e);
         }
+        resetSpinButton();  // Reset the spin button state as well when resetting
     }
 
     // Method to handle the Close button action
@@ -85,9 +104,20 @@ public class MainFrame extends JFrame {
         dispose();
     }
 
+    // Method to reset the spin button to its initial state
+    public void resetSpinButton() {
+        isSpinning = false;  // Set the spinning state to false
+        spinButton.setText("Spin");  // Set the button text to "Spin"
+    }
+
     // Method to set the spin handler
     public void setSpinHandler(ActionListener spinHandler) {
         this.spinHandler = spinHandler;
+    }
+
+    // Method to set the stop handler
+    public void setStopHandler(ActionListener stopHandler) {
+        this.stopHandler = stopHandler;
     }
 
     // Method to set the reset handler
@@ -103,10 +133,5 @@ public class MainFrame extends JFrame {
     // Method to make the frame visible
     public void showFrame() {
         setVisible(true);
-    }
-
-    // Method to renable Spin button
-    public void enableSpinButton() {
-        spinButton.setEnabled(true);
     }
 }
