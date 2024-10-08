@@ -16,10 +16,7 @@ package edu.yu.parallel;
  *     Once a thread requests a write lock, no new threads may acquire the read 
  *     lock until the write request is satisfied. However, existing readers may 
  *     continue their operations until they release their read locks.
- * 
- *     Blocking threads are queued in the order that they requested the lock, 
- *     with separate queues for readers and writers. 
- * 
+ *  
  *     Writers have priority over new readers once a write request is pending. 
  *     Readers that acquired the lock before a write request was made are allowed 
  *     to complete their reads, but no new readers are allowed until the pending 
