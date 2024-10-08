@@ -31,7 +31,8 @@ package edu.yu.parallel;
  *    call to unlock() releases one read lock, and the thread must release all 
  *    acquired read locks for full relinquishment. 
  * 
- *    A thread holding a read lock cannot acquire a write lock
+ *    A thread holding a read lock cannot acquire a write lock. If it tries to do
+ *    so, throw an IllegalMonitorStateException.
  * 
  *    A thread holding a write lock may acquire additional read or write locks. 
  *    If a thread holding a write lock acquires a read lock, it retains exclusive 
