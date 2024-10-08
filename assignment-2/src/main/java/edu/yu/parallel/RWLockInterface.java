@@ -56,7 +56,12 @@ public interface RWLockInterface {
      * Otherwise, the invoking thread is blocked until the writing thread AND
      * previously blocked threads requesting write access have released the lock
      * <p>
-     * NOTE: blocking threads are queued in the order that they requested the lock
+     * NOTE: Readers that request the lock before a subsequent writer will be 
+     * granted the lock before the writer. That is, if a reader is currently blocked
+     * waiting for a writer to release the lock, and a new writer requests the lock,
+     * the new writer will be blocked until the reader obtains the lock and then 
+     * relinquishes it. If subsequently a new reader requests the lock, it will be
+     * be queued behind the second writer.
      */
     void lockRead();
 
