@@ -1,8 +1,11 @@
 package edu.yu.parallel;
 
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+
+import javax.xml.crypto.Data;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,39 +16,24 @@ import edu.yu.parallel.implementation.SequentialDataProcessor;
 
 public class SnpDataAnalysis {
     private final static Logger logger = LogManager.getLogger(SnpDataAnalysis.class);
-    private final AsyncDataProcessor processor;
-    private final String processorName;
-
-    public SnpDataAnalysis(AsyncDataProcessor processor) {
-        this.processor = processor;
-        processorName = processor.getClass().getSimpleName();
-    }
+    private final DataProcessor processor;
 
     public SnpDataAnalysis(DataProcessor processor) {
-        processorName = processor.getClass().getSimpleName();
-
-        // Wrap the processor in an async processor
-        // so that our code below can be uniform
-        this.processor = filePath -> {
-            FutureTask<Map<Integer, TickerHighs>> futureTask = new FutureTask<>(
-                    () -> processor.processFile(filePath));
-            futureTask.run();
-            return futureTask;
-        };
+        this.processor = processor;
     }
 
     public void analyze(String filePath) {
         long startTime = 0L, endTime = 0L;
         logger.info("Analyzing file: {}", filePath);
-        logger.info("Processor: {}", processorName);
+        logger.info("Processor: {}", processor.getClass().getSimpleName());
         try {
             startTime = System.nanoTime();
-            var resultFuture = processor.processFileAsync(filePath);
-            var resultMap = resultFuture.get();
+            var resultMap = processor.processFile(filePath);
             endTime = System.nanoTime();
 
-            // Print results
-            for (Map.Entry<Integer, TickerHighs> entry : resultMap.entrySet()) {
+            // Print results in order of year
+            Map<Integer, TickerStats> sortedMap = new TreeMap<>(resultMap);
+            for (Map.Entry<Integer, TickerStats> entry : sortedMap.entrySet()) {
                 int year = entry.getKey();
                 var highs = entry.getValue();
                 System.out.printf("%d: %s%n", year, highs.Summary());
@@ -53,7 +41,7 @@ public class SnpDataAnalysis {
         } catch (Exception e) {
             endTime = System.nanoTime();
             var cause = e.getCause() == null ? e : e.getCause();
-            logger.error("{}: {}", cause.getClass().getName(), cause.getMessage());
+            logger.error("{}: {}", cause.getClass().getSimpleName(), cause.getMessage());
         }
         logger.info("Analysis complete in {} ms", (endTime - startTime) / 1_000_000);
     }
@@ -66,18 +54,16 @@ public class SnpDataAnalysis {
 
         String filePath = args[0];
 
-        DataProcessor sequentialProcessor = new SequentialDataProcessor();
-        SnpDataAnalysis analysis = new SnpDataAnalysis(sequentialProcessor);
+        DataProcessor[] processors = {
+                new SequentialDataProcessor(),
+                new ParallelDataProcessor(),
+                new ParallelStreamsDataProcessor()
+        };
 
-        AsyncDataProcessor parallelProcessor = new ParallelDataProcessor();
-        SnpDataAnalysis analysis2 = new SnpDataAnalysis(parallelProcessor);
-
-        AsyncDataProcessor parallelStreamsProcessor = new ParallelStreamsDataProcessor();
-        SnpDataAnalysis analysis3 = new SnpDataAnalysis(parallelStreamsProcessor);
-
-        // Run the analysis
-        analysis.analyze(filePath);
-        analysis2.analyze(filePath);
-        analysis3.analyze(filePath);
+        for (DataProcessor processor : processors) {
+            logger.info("----- Begin: {} -----", processor.getClass().getSimpleName());
+            SnpDataAnalysis analysis = new SnpDataAnalysis(processor);
+            analysis.analyze(filePath);
+        }
     }
 }

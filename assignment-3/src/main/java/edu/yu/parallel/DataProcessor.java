@@ -1,5 +1,6 @@
 package edu.yu.parallel;
 
+import java.io.IOException;
 import java.util.Map;
 
 public interface DataProcessor {
@@ -10,5 +11,5 @@ public interface DataProcessor {
      * @return A map where the key is the year, and the value is a TickerHighs object representing the statistics for that year.
      * @throws ProcessingException If an error occurs while reading or processing the file.
      */
-    Map<Integer, TickerHighs> processFile(String filePath) throws ProcessingException;
+    Map<Integer, TickerStats> processFile(String filePath) throws IOException, ProcessingException;
 }

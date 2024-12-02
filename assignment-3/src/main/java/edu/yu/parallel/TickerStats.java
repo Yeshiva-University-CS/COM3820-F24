@@ -1,6 +1,6 @@
 package edu.yu.parallel;
 
-public interface TickerHighs {
+public interface TickerStats {
     void addQuoteCount(int count);
 
     void updateHighestClose(String ticker, double price);
