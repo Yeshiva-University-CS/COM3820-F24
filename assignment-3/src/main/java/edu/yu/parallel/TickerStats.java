@@ -1,19 +1,29 @@
 package edu.yu.parallel;
 
 public interface TickerStats {
-    void addQuoteCount(int count);
-
-    void updateHighestClose(String ticker, double price);
-
-    void updateHighestVolume(String ticker, long volume);
-
+    /**
+     * @return The ticker symbol with the highest close.
+     */
     String getHighestCloseTicker();
 
+    /**
+     * @return The highest close of any quote across all Tickers.
+     */
     double getHighestClose();
 
+    /**
+     * @return The ticker symbol with the highest volume.
+     */
     String getHighestVolumeTicker();
 
+    /**
+     * @return The highest volume of any quote across all Tickers.
+     */
     long getHighestVolume();
+
+    /**
+     * @return The number of quotes across all Tickers.
+     */
 
     int getQuoteCount();
 

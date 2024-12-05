@@ -2,11 +2,6 @@ package edu.yu.parallel;
 
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-
-import javax.xml.crypto.Data;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
